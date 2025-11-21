@@ -1,12 +1,11 @@
 NAME = libftprintf.a
 
-CC = cc
-
 CFLAGS = -Wall -Wextra -Werror -MMD -MP
 
 INC = ft_printf.h
 
 SRCS = ft_printf.c\
+	utils.c\
 
 AR = ar rcs
 
@@ -16,14 +15,11 @@ ALL_D = $(SRCS:.c=.d)
 
 all: $(NAME)
 
-$(NAME): $(OBJ) $(INC) Makefile
+$(NAME): $(OBJ) $(INC) 
 	$(AR) $(NAME) $(OBJ)
 
-%.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@
-
 clean:
-	rm -f $(OBJ) $(ALL_D) .bonus_done
+	rm -f $(OBJ) $(ALL_D)
 
 fclean: clean
 	rm -f $(NAME)

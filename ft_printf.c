@@ -1,74 +1,31 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ft_printf.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: tigondra <tigondra@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/11/18 12:08:16 by tigondra          #+#    #+#             */
+/*   Updated: 2025/11/20 14:12:32 by tigondra         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "ft_printf.h"
-#include <stdio.h>
-
-int	ft_strlen(char *str)
-{
-	int	i;
-
-	i = 0;
-	while(str[i])
-	{
-		i++;
-	}
-	return (i);
-}
-
-int	ft_putchar(char c)
-{
-	write(1, &c, 1);
-	return (1);
-}
-
-int	ft_putstr(char *str)
-{
-	int	i;
-
-	i = 0;
-	if (!str)
-		return (ft_putstr("(null)"));
-	while(str[i])
-	{
-		ft_putchar(str[i]);
-		i++;
-	}
-	return (i);
-}
-
-int	ft_putnbr(int nb)
-{
-	int	len;
-
-	len = 0;
-	if (nb == -2147483648)
-		return (ft_putstr("-2147483648"));
-	if (nb < 0)
-	{
-		len += ft_putchar('-');
-		nb = -nb;
-	}
-	if (nb > 9)
-		len += ft_putnbr(nb / 10);
-	len += ft_putchar(nb % 10 + '0');
-	return (len);
-}
-
-
-int	ft_putunsigned_nbr(unsigned int nb)
-{
-	int	len;
-
-	len = 0;
-	if (nb > 9)
-		len += ft_putunsigned_nbr(nb / 10);
-	len += ft_putchar(nb % 10 + '0');
-	return (len);
-}
 
 int	ft_putnbr_base(unsigned long nb, char *base, int len)
 {
 	unsigned long	len_base;
 
 	len_base = ft_strlen(base);
+	if (len == -1)
+	{
+		if (nb == 0)
+		{
+			len = ft_putstr("(nil)");
+			return (len);
+		}
+		len = ft_putstr("0x");
+	}
 	if (nb >= len_base)
 	{
 		len = ft_putnbr_base(nb / len_base, base, len);
@@ -93,19 +50,18 @@ int	ft_check_case(char c, va_list args)
 	else if (c == 's')
 		len = ft_putstr(va_arg(args, char *));
 	else if (c == 'p')
-	{
-		len += ft_putstr("0x");
-		len += ft_putnbr_base(va_arg(args, unsigned long),"0123456789abcdef", len);
-	}
+		len += ft_putnbr_base(va_arg(args, unsigned long), "0123456789abcdef",
+				-1);
 	else if (c == 'd' || c == 'i')
 		len = ft_putnbr(va_arg(args, int));
 	else if (c == 'u')
-    	len = ft_putunsigned_nbr(va_arg(args, unsigned int));
+		len = ft_putunsigned_nbr(va_arg(args, unsigned int));
 	else if (c == 'x')
-		len = ft_putnbr_base(va_arg(args, unsigned int),"0123456789abcdef", len);
+		len = ft_putnbr_base(va_arg(args, unsigned int), "0123456789abcdef",
+				len);
 	else if (c == 'X')
-		len = ft_putnbr_base(va_arg(args, unsigned int),"0123456789ABCDEF", len);
-
+		len = ft_putnbr_base(va_arg(args, unsigned int), "0123456789ABCDEF",
+				len);
 	else if (c == '%')
 		len = ft_putchar('%');
 	else
@@ -113,17 +69,19 @@ int	ft_check_case(char c, va_list args)
 	return (len);
 }
 
-int     ft_printf(const char *str, ...)
+int	ft_printf(const char *str, ...)
 {
-	va_list args;
-	int     i;
-	int	len;
-	int	tmp;
+	va_list	args;
+	int		i;
+	int		len;
+	int		tmp;
 
-	i = 0;
+	if (!str)
+		return (-1);
+	i = -1;
 	len = 0;
 	va_start(args, str);
-	while(str[i])
+	while (str[++i])
 	{
 		if (str[i] == '%')
 		{
@@ -134,10 +92,7 @@ int     ft_printf(const char *str, ...)
 			i++;
 		}
 		else
-		{
 			len += ft_putchar(str[i]);
-		}
-		i++;
 	}
 	va_end(args);
 	return (len);
